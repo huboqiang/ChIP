@@ -99,3 +99,7 @@ git add	settings/
 git commit -m "setting information for project-path and scripts for each step."
 git add	utils/
 git commit -m "modules for support."
+
+
+git add run_chipseq.py
+git commit -m "running the pipeline."
