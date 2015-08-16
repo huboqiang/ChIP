@@ -82,7 +82,6 @@ class UsedSoftware(object):
         self.sftw_bwa            = "/data/Analysis/huboqiang/bin/bwa"
         self.sftw_samtools       = "/data/Analysis/huboqiang/software/samtools-0.1.18/samtools"    
         self.sftw_macs2          = "/data/Analysis/huboqiang/software/MACS/bin/macs2"
-        self.sftw_macs14         = "/data/Analysis/huboqiang/software/MACS-1.4.2/bin/macs14"
         self.sftw_bedtools       = "/data/Analysis/huboqiang/software/bedtools-2.17.0/bin/bedtools"
         self.sftw_bgzip          = "/data/Analysis/huboqiang/software/tabix/bgzip"
         self.sftw_tabix          = "/data/Analysis/huboqiang/software/tabix/tabix"
