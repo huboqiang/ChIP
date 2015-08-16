@@ -11,11 +11,11 @@ import cPickle as pickle
 
 import numpy   as np
 
-import ChIP.utils.module_refGene      as m_refG
-import ChIP.utils.module_running_jobs as m_jobs
-import ChIP.settings.scripts          as m_scpt
-import ChIP.module01_mapping_from_raw as m01
-import ChIP.module00_StatInfo         as m00
+import ChIP.utils.module_refGene            as m_refG
+import ChIP.utils.module_running_jobs       as m_jobs
+import ChIP.settings.scripts                as m_scpt
+import ChIP.frame.module01_mapping_from_raw as m01
+import ChIP.frame.module00_StatInfo         as m00
 
 
 class GeneBasedInfo(m_scpt.Scripts):
