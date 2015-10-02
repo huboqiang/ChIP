@@ -9,7 +9,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import ChIP.settings.projpath         as m_proj
-import utils.module_StatFunc          as m_Stat
+import ChIP.utils.module_StatFunc          as m_Stat
 
 def get_PassPeak(infile, FDR):
     cnt = 0
