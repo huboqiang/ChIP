@@ -124,7 +124,7 @@ sample               stage   type        tissue      brief_name               me
 H3K27ac_mE105_brain  E105    H3K27ac     brain       H3K27ac_mE105_brain      H3K27ac_mE105_brain     SE        Input_mE105_brain
 OR_READING
 ```
-Notice that only NAME_FOR_RAW_FQ were required that this NAME should be the same as 00.0.raw_fq/NAME.
+Notice that only NAME\_FOR\_RAW\_FQ were required that this NAME should be the same as 00.0.raw\_fq/NAME.
 NAME\_FOR\_PROCESSING will be the name for the rest analysis's results.
 NAME\_FOR\_READING    will be the name for files in statinfo.
 stage and sample_group could be writen as anything. It was here only for make the downstream analysis easily.
