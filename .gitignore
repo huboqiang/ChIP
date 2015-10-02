@@ -10,6 +10,8 @@ Desktop.ini
 *.egg-info
 dist
 build
+# CPP
+*.o
 
 # My configurations:
 db.ini
