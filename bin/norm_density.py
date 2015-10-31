@@ -55,7 +55,7 @@ def parse_line(line):
 def div_total(line, total_val):
     line = line.strip()
     f = line.split()
-    normalized_value = float(f[3])/total_val
+    normalized_value = float(f[3])/total_val*1000000
     return normalized_value
 
 
