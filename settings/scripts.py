@@ -752,3 +752,71 @@ $tabix_exe -f -p bed -s 1 -b 2 -e 3 -S 1  ${prefix}_${window}.bed.gz
 rm ${prefix}_${window}.tmp""")
 
         return l_sh_info
+
+
+    def s16_densityBaselv(self):
+        genome_fai = "%s.fai" % (self.genome_ref)
+        
+        l_sh_info = []
+        l_sh_info.append("sam=$1")
+        l_sh_info.append("ref=$2")
+        l_sh_info.append("dir=$3")
+        l_sh_info.append("bin=%s" % (self.bin))
+        l_sh_info.append("ucsc_dir=%s" % (self.sftw_ucsc_dir))
+        l_sh_info.append("python_exe=%s" % self.sftw_py)
+        l_sh_info.append("genome_fai=%s" % genome_fai)
+        l_sh_info.append("bedtools_exe=%s" % (self.sftw_bedtools))
+        l_sh_info.append("column=%s/%s/columns.1kb.bed" % (self.Database, \
+            self.ref))
+        l_sh_info.append("""
+$python_exe $bin/norm_density.py                                            \\
+    -r $ref $dir/$sam/${sam}_VS_Input_treat_pileup.sort.bdg.gz           && \\
+$python_exe $bin/norm_density.py                                            \\
+    -r $ref $dir/$sam/${sam}_VS_Input_control_lambda.sort.bdg.gz         && \\
+
+$bedtools_exe intersect -wo -sorted                                         \\
+    -a $dir/$sam/${sam}_VS_Input_treat_pileup.sort.norm.bedGraph            \\
+    -b $dir/$sam/${sam}_VS_Input_control_lambda.sort.norm.bedGraph         |\\
+    $python_exe $bin/minus_control_bdg.py /dev/stdin                        \\
+    >$dir/$sam/${sam}_treat_minus_control.sort.norm.bedGraph
+
+$ucsc_dir/bedGraphToBigWig                                                  \\
+    $dir/$sam/${sam}_treat_minus_control.sort.norm.bedGraph                 \\
+    $genome_fai $dir/$sam/${sam}_treat_minus_control.sort.norm.bw        && \\
+
+rm $dir/$sam/${sam}_VS_Input_control_lambda.sort.norm.bedGraph              \\
+   $dir/$sam/${sam}_VS_Input_treat_pileup.sort.norm.bedGraph
+
+awk '{print $0 "\\t" $1 ":" $2 "-" $3 }' $column                           |\\
+$ucsc_dir/bigWigAverageOverBed                                              \\
+    $dir/$sam/${sam}_treat_minus_control.sort.norm.bw /dev/stdin            \\
+    /dev/stdout | awk '{print $6}' >$dir/$sam/${sam}.1kb.norm_avg.xls
+
+""")
+        
+        return l_sh_info
+
+    def s17_merge_RPKM(self):
+        l_sh_info = []
+        l_sh_info.append("header=$1")
+        l_sh_info.append("window=$2")
+        l_sh_info.append("type=$3")
+        l_sh_info.append("dir_RPM_mrg=%s" % self.dir_RPM_mrg )
+        l_sh_info.append("bgzip_exe=%s"   % self.sftw_bgzip  )
+        l_sh_info.append("tabix_exe=%s"   % self.sftw_tabix  )
+        l_sh_info.append("column=%s/%s/columns.${window}.bed" % \
+                                            (self.Database, self.ref))
+        l_sh_info.append("""
+shift
+shift
+shift
+
+prefix=${dir_RPM_mrg}/Merge_density.${type}
+
+echo -e "$header"  >${prefix}_${window}.tmp                              && \\
+paste $column $@  >>${prefix}_${window}.tmp                              && \\
+$bgzip_exe -c -f ${prefix}_${window}.tmp >${prefix}.${window}.bed.gz     && \\
+$tabix_exe -f -p bed -s 1 -b 2 -e 3 -S 1  ${prefix}.${window}.bed.gz
+rm ${prefix}_${window}.tmp""")
+
+        return l_sh_info
