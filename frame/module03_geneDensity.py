@@ -165,3 +165,102 @@ class GeneBasedInfo(m_scpt.Scripts):
         my_job = m_jobs.run_jobs(sh_file, sh_work_file, l_sh_info, l_sh_work)
         my_job.running_multi(cpu=8, is_debug = self.is_debug)
 #        my_job.running_SGE(vf="400m",maxjob=100,is_debug = self.is_debug)
+
+
+    def density_baseLevel( self ):
+        sh_file      = "%s/s16.densityBaseLv.sh" % (self.scripts)
+        sh_rep_work_file = "%s/s16.densityBaseLvRep_work.sh" % (self.scripts)
+        sh_mrg_work_file = "%s/s16.densityBaseLvMrg_work.sh" % (self.scripts)
+        
+        l_brief = self.samInfo_pd_ChIP['brief_name']
+        l_merge = set(self.samInfo_pd_ChIP['merge_name'])
+        
+        l_sh_info = self.s16_densityBaselv()
+        l_sh_rep_work = []
+        l_sh_mrg_work = []
+
+        for brief_name in l_brief:
+            idx   =(self.samInfo_pd_ChIP['brief_name'] == brief_name)
+            if self.__is_input(idx):
+                continue
+            
+            l_sh_rep_work.append("sh %s %s %s %s" % 
+                (sh_file, brief_name, self.ref, self.dir_Peak_rep)
+            )
+        
+        for merge_name in l_merge:
+            idx   =(self.samInfo_pd_ChIP['merge_name'] == merge_name)
+            if self.__is_input(idx):
+                continue
+            
+            l_sh_mrg_work.append("sh %s %s %s %s" % 
+                (sh_file, merge_name, self.ref, self.dir_Peak_mrg)
+            )
+        
+        my_job_rep = m_jobs.run_jobs(sh_file, sh_rep_work_file, l_sh_info, l_sh_rep_work)
+        my_job_rep.running_multi(cpu=8, is_debug = self.is_debug)
+
+        my_job_mrg = m_jobs.run_jobs(sh_file, sh_mrg_work_file, l_sh_info, l_sh_mrg_work)
+        my_job_mrg.running_multi(cpu=8, is_debug = self.is_debug)
+
+    def merge_density_100bp(self):
+
+        m01.make_dir([ self.dir_RPM_mrg ])
+        sh_file      = "%s/s17.MergeDensity.sh"      % (self.scripts)
+        sh_work_file = "%s/s17.MergeDensity_work.sh" % (self.scripts)
+        
+        l_brief = self.samInfo_pd_ChIP['brief_name']
+        l_merge = set(self.samInfo_pd_ChIP['merge_name'])
+        
+        l_brief2 = []
+        for brief_name in l_brief:
+            idx   =(self.samInfo_pd_ChIP['brief_name'] == brief_name)
+            if self.__is_input(idx):
+                continue
+            
+            l_brief2.append(brief_name)
+        
+        l_merge2 = []
+        for merge_name in l_merge:
+            idx   =(self.samInfo_pd_ChIP['merge_name'] == merge_name)
+            if self.__is_input(idx):
+                continue
+            
+            l_merge2.append(merge_name)
+        
+        l_brief = l_brief2
+        l_merge = l_merge2
+        
+        l_sh_info = self.s17_merge_RPKM()
+        l_sh_work = []
+        
+        for ltype in ["rep","mrg"]:
+            l_sam = l_brief
+            RPKM_dir = self.dir_Peak_rep
+            if ltype == "mrg":
+                l_sam = l_merge
+                RPKM_dir = self.dir_Peak_mrg
+            
+            header = "\"#chr\\tbeg\\tend\\t%s\"" % ("\\t".join(l_sam))
+            l_RPKM_file = [ 
+                "%s/%s/%s.1kb.norm_avg.xls"                             %\
+                (RPKM_dir, sam, sam) for sam in l_sam
+            ]
+            l_sh_work.append(
+                "sh %s  %s %s %s %s"                                    %\
+                (sh_file, header, "1kb", ltype, " ".join(l_RPKM_file))
+            )
+        
+        my_job = m_jobs.run_jobs(sh_file, sh_work_file, l_sh_info, l_sh_work)
+        my_job.running_multi(cpu=8, is_debug = self.is_debug)
+#        my_job.running_SGE(vf="400m",maxjob=100,is_debug = self.is_debug)
+
+
+    def __is_input(self,idx):
+        ltype = self.samInfo_pd_ChIP[idx]['type'].values[0]
+        is_input = 0
+        if ltype.upper() == "input".upper():
+            is_input = 1
+
+        return is_input
+
