@@ -76,6 +76,14 @@ tar -zxvf spp_1.10.1.tar.gz
 ### install UCSC utilities
 from http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/
 
+
+### install required python modules:
+pip install ngslib
+pip install Mysql
+pip install svgwrite
+pip install seaborn
+pip install pysam
+pip install sklearn
 ```
 
 After that, download this script:
