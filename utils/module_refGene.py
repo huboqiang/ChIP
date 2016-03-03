@@ -45,7 +45,7 @@ def CpG_type(chrom,beg,end, in_fa,M_length):
 
 def sort_bed(infile):
     shell_info = """
-bedtools sort -i %s >%s.tmp && mv %s.tmp %s
+awk '{if($2>0){print $0}}' %s | bedtools sort -i /dev/stdin >%s.tmp && mv %s.tmp %s
     """ % (infile,infile,infile,infile)
     p = subprocess.Popen(shell_info,shell='True')
     while 1:
