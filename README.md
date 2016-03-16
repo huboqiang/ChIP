@@ -132,7 +132,8 @@ vim sample_input.xls
 ==> sample_input.xls <==
 sample               stage   type        tissue      brief_name               merge_name             end_type   control
 H3K27ac_mE105_brain  E105    H3K27ac     brain       H3K27ac_mE105_brain      H3K27ac_mE105_brain     SE        Input_mE105_brain
-OR_READING
+Input_mE105_brain1   E105    H3K27ac     brain       Input_mE105_brain1       Input_mE105_brain       SE        Input_mE105_brain
+...
 ```
 Notice that only NAME\_FOR\_RAW\_FQ were required that this NAME should be the same as 00.0.raw\_fq/NAME.
 NAME\_FOR\_PROCESSING will be the name for the rest analysis's results.
@@ -150,7 +151,7 @@ done
 
 After that, running this pipeline:
 ```bash
- python run_chipseq.py --ref YOUR_REF --TSS_genebody_up 5000 --TSS_genebody_down 5000 --TSS_promoter_up 5000  --TSS_promoter_down 5000 --Body_extbin_len 50 --Body_bincnt 100 --TSS_bin_len 1 --top_peak_dir 100000 sample_input.xls 
+python run_chipseq.py --ref YOUR_REF --TSS_genebody_up 5000 --TSS_genebody_down 5000 --TSS_promoter_up 5000  --TSS_promoter_down 5000 --Body_extbin_len 50 --Body_bincnt 100 --TSS_bin_len 1 --top_peak_idr 100000 sample_input.xls 
 ```
 
 Wait for the results. 
