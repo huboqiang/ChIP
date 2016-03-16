@@ -47,6 +47,7 @@ make
 wget https://pypi.python.org/packages/source/M/MACS2/MACS2-2.1.0.20150731.tar.gz
 tar -zxvf MACS2-2.1.0.20150731.tar.gz
 cd MACS2/
+# sed -i 's/Ofast/O3/g' /data/Analysis/huboqiang/software/MACS/setup_w_cython.py if necessary
 python install setup_w_cython.py
 
 ### install picard-tools
@@ -82,7 +83,8 @@ pip install ngslib
 pip install Mysql
 pip install svgwrite
 pip install seaborn
-pip install pysam
+pip install pysam==0.8.3
+pip install pybedtools==0.6.9
 pip install sklearn
 ```
 
@@ -96,7 +98,7 @@ git clone https://github.com/hubqoaing/ChIP
 Secondly, go to the ./setting file, and change the following values to your own path:
 ```python
 self.Database            = "DIR/TO/DATABASE"                               #line 61
-self.sftw_py             = "/datd/lvzhicong/software/anaconda/bin/python"  #line 77
+self.sftw_py             = "DIR/TO/SOFTWARE_EXE_FILE"  #line 77
 self.sftw_pl             = "DIR/TO/SOFTWARE_EXE_FILE"
 self.sftw_java           = "DIR/TO/SOFTWARE_EXE_FILE"
 self.sftw_R              = "DIR/TO/SOFTWARE_EXE_FILE"

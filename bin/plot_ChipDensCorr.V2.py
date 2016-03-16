@@ -273,8 +273,8 @@ def main():
       pickle.dump( m_cor,open(infile_dat,"wb"),True )   
       logging.info( 'Write %s done.' % ( infile_dat ) )
    
-#   logging.info( 'Plotting %s %s correlation.' % ( infile,method ) )
-#   m_cor.plot_cor_matrix( info_file,is_cluster )
+   logging.info( 'Plotting %s %s correlation.' % ( infile,method ) )
+   m_cor.plot_cor_matrix( info_file,is_cluster )
 
    logging.info( 'Plotting %s PCA.' % ( infile ) )
    m_cor.plot_PCA( info_file )
