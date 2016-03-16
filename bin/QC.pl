@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Getopt::Long;
-use PerlIO::gzip;
+#use PerlIO::gzip;
 
 
 ####
@@ -74,7 +74,7 @@ open LOG,">$outdir/$sample/log" or die $!;
 
 #-get the adapters list
 
-my @adapter = ("GATCGGAAGAGCACA","GATCGGAAGAGCGTC");
+my @adapter = ("AGATCGGAAGAGC", "GCTCTTCCGATCT");
 
 #-the common global variabes 
 
@@ -102,18 +102,20 @@ if ($end == 2) {
 
 	#-get the input files
 	
-	chomp (my $file_1 = `ls $indir/$sample/*_R1*.fastq.gz`);
-	chomp (my $file_2 = `ls $indir/$sample/*_R2*.fastq.gz`);
+	chomp (my $file_1 = `ls $indir/$sample/*_R1*.f*q.gz $indir/$sample/*_1.*f*q.gz $indir/$sample/*.1.*f*q.gz $indir/$sample/*.R1_sequence.fq.gz`);
+	chomp (my $file_2 = `ls $indir/$sample/*_R2*.f*q.gz $indir/$sample/*_2.*f*q.gz $indir/$sample/*.2.*f*q.gz $indir/$sample/*.R2_sequence.fq.gz`);
 	#-open the input files
 
-	open IN_1,"<:gzip","$file_1" or die "Cannot open file $file_1\n", $!;
-	open IN_2,"<:gzip","$file_2" or die $!;
+	open IN_1,"zcat $file_1 |" or die "Cannot open file $file_1\n", $!;
+	open IN_2,"zcat $file_2 |" or die $!;
 
 	#-open the output files
 
-	open OUT_1,">:gzip","$outdir/$sample/1.cln.fq.gz" or die $!;
-	open OUT_2,">:gzip","$outdir/$sample/2.cln.fq.gz" or die $!;
+#	open OUT_1,">:gzip","$outdir/$sample/1.cln.fq.gz" or die $!;
+#	open OUT_2,">:gzip","$outdir/$sample/2.cln.fq.gz" or die $!;
 	
+    open OUT_1,"| gzip > $outdir/$sample/1.cln.fq.gz" or die $!;
+    open OUT_2,"| gzip > $outdir/$sample/2.cln.fq.gz" or die $!;
 
 	#---------------------------read in the reads information-----------------------#
 
@@ -142,7 +144,6 @@ if ($end == 2) {
 		($read_length = length($line1_2)) if ($read_length == 0);
 		
 		#-remove adapter
-		
 		my $remove_a1 = remove_adapter($line1_2,1);
 		my $remove_a2 = remove_adapter($line2_2,2);
 		if ($remove_a1 > 0 or $remove_a2 > 0){
@@ -246,12 +247,12 @@ else {
 	chomp (my $file = `ls $indir/$sample/*.f*q.gz`);
 
 	#-open the input files
-   print $file;
-	open IN_1,"<:gzip","$file" or die $!;
+   open IN_1,"zcat $file |" or die "Cannot open file $file\n", $!;
+#	open IN_1,"<:gzip","$file" or die $!;
 
 	#-open the output files
-	
-	open OUT_1,">:gzip","$outdir/$sample/1.cln.fq.gz" or die $!;
+    open OUT_1," | gzip > $outdir/$sample/1.cln.fq.gz" or die $!;
+#	open OUT_1,">:gzip","$outdir/$sample/1.cln.fq.gz" or die $!;
 
 	#---------------------------read in the reads information-----------------------#
 
