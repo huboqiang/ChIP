@@ -112,7 +112,7 @@ def main():
         sys.exit(1)
     
     
-    part0 = m_db.DataBaseInit(ref, sam_file_chip, is_debug=1)
+    part0 = m_db.DataBaseInit(ref, sam_file_chip, is_debug=0)
     part0.check_files()
     
     samp_mapping = m01.Map_From_raw(sam_file_chip, ref, is_debug = 0)
@@ -134,20 +134,21 @@ def main():
     samp_peak.run_macs_rep_broad(pvalue=0.05, ref=M_species[ref])
     samp_peak.run_macs_mrg_broad(pvalue=0.05, ref=M_species[ref])
     samp_peak.sort_bdg()
-    samp_peak.make_igv_IDR()
-    samp_peak.make_igv_broad()
+#    samp_peak.make_igv_IDR()
+#    samp_peak.make_igv_broad()
        
-    peak_gene = m03.GeneBasedInfo(sam_file_chip, is_debug = 1)
-    peak_gene.extend_gene_region(
-        TSS_genebody_up,TSS_genebody_down,TSS_promoter_up,TSS_promoter_down
-    )
-    peak_gene.run_anno_peak(
-        TSS_genebody_up,TSS_genebody_down,TSS_promoter_up,TSS_promoter_down, 
-        Body_extbin_len, Body_bincnt, TSS_bin_len
-    )
-    peak_gene.div_bed_to_bins_rep()
-    peak_gene.div_bed_to_bins_mrg()
-    peak_gene.merge_RPKM()
-   
+    peak_gene = m03.GeneBasedInfo(sam_file_chip,ref, is_debug = 0)
+    #peak_gene.extend_gene_region(
+    #    TSS_genebody_up,TSS_genebody_down,TSS_promoter_up,TSS_promoter_down
+    #)
+    #peak_gene.run_anno_peak(
+    #    TSS_genebody_up,TSS_genebody_down,TSS_promoter_up,TSS_promoter_down, 
+    #    Body_extbin_len, Body_bincnt, TSS_bin_len
+    #)
+    #peak_gene.div_bed_to_bins_rep()
+    #peak_gene.div_bed_to_bins_mrg()
+    #peak_gene.merge_RPKM()
+    peak_gene.density_baseLevel()
+
 if __name__ == '__main__':
     main()
