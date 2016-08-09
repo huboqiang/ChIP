@@ -28,9 +28,9 @@ class GeneBasedInfo(m_scpt.Scripts):
         self.load_ChIP_samInfo( sam_ChIPinfo )
         self.define_scripts(s_idx)
         self.define_files(ref)
-        
+
         self.__load_StatInfo()
-                
+
 
     def __load_StatInfo(self):
         prefix  = ".".join(self.sam_ChIPinfo.split(".")[:-1])
@@ -41,11 +41,11 @@ class GeneBasedInfo(m_scpt.Scripts):
             self.stat_Info = m00.StatInfo(self.sam_ChIPinfo)
             self.stat_Info.Basic_Stat()
             pickle.dump(self.stat_Info,open(data_db,"wb"),True)
-      
+
     def extend_gene_region(self,
             TSS_genebody_up,TSS_genebody_down,
             TSS_promoter_up,TSS_promoter_down):
-      
+
         data_db = "%s.dat" % (self.refGeneTxt)
         try:
             refG_info = pickle.load(open(data_db))
@@ -68,11 +68,11 @@ class GeneBasedInfo(m_scpt.Scripts):
             pickle.dump( refG_info,open(data_db,"wb"),True )
 
 
-    def run_anno_peak(self,  
+    def run_anno_peak(self,
                         TSS_genebody_up,TSS_genebody_down,TSS_promoter_up,
                         TSS_promoter_down,ext_binlen=50,body_bincnt=100,
                         tss_binlen=1):
-      
+
         sh_file       = "%s/s12.PeakGeneRegion.sh"      % (self.scripts)
         sh_work_file  = "%s/s12.PeakGeneRegion_work.sh" % (self.scripts)
 
@@ -80,14 +80,14 @@ class GeneBasedInfo(m_scpt.Scripts):
                         TSS_genebody_up,TSS_genebody_down,TSS_promoter_up,
                         TSS_promoter_down,ext_binlen=50,body_bincnt=100,
                         tss_binlen=1)
-                        
+
         l_sh_work     = []
 
         for merge_name in set(self.samInfo_pd_ChIP['merge_name']):
             m01.make_dir([ self.dir_Peak_mrg_TSS,  merge_name ])
             m01.make_dir([ self.dir_Peak_mrg_Gene, merge_name ])
             l_sh_work.append("sh %s %s" % ( sh_file, merge_name ))
-            
+
         my_job = m_jobs.run_jobs(sh_file, sh_work_file, l_sh_info, l_sh_work)
         my_job.running_multi(cpu=8, is_debug = self.is_debug)
 #        my_job.running_SGE(vf="400m",maxjob=100,is_debug = self.is_debug)
@@ -98,18 +98,18 @@ class GeneBasedInfo(m_scpt.Scripts):
 
         l_sh_info = self.s13_RPM_density_rep()
         l_sh_work = []
-        
+
         for brief_name in self.samInfo_pd_ChIP['brief_name']:
             m01.make_dir([ self.dir_RPM_bins_rep, brief_name])
-            
+
             idx = (self.samInfo_pd_ChIP['brief_name'] == brief_name)
             merge_name = self.samInfo_pd_ChIP[ idx ]['merge_name'].values[0]
-            
+
             l_brief = self.stat_Info.StatInfo[merge_name]['l_brief']
             idx2 = l_brief.index(brief_name)
             mapped_reads = self.stat_Info.StatInfo[merge_name]['q30'][idx2]
             l_sh_work.append("sh %s %s %d" % (sh_file, brief_name, mapped_reads))
-        
+
         my_job = m_jobs.run_jobs(sh_file, sh_work_file, l_sh_info, l_sh_work)
         my_job.running_multi(cpu=8, is_debug = self.is_debug)
 #        my_job.running_SGE(vf="400m",maxjob=100,is_debug = self.is_debug)
@@ -120,13 +120,13 @@ class GeneBasedInfo(m_scpt.Scripts):
 
         l_sh_info = self.s14_RPM_density_mrg()
         l_sh_work = []
-        
+
         for merge_name in set(self.samInfo_pd_ChIP['merge_name']):
             m01.make_dir([ self.dir_RPM_bins_mrg, merge_name])
-            
+
             mapped_reads = np.sum(self.stat_Info.StatInfo[merge_name]['q30'])
             l_sh_work.append("sh %s %s %d" % (sh_file,merge_name, mapped_reads))
-        
+
         my_job = m_jobs.run_jobs(sh_file, sh_work_file, l_sh_info, l_sh_work)
         my_job.running_multi(cpu=8, is_debug = self.is_debug)
 #        my_job.running_SGE(vf="400m",maxjob=100,is_debug = self.is_debug)
@@ -137,13 +137,13 @@ class GeneBasedInfo(m_scpt.Scripts):
         m01.make_dir([ self.dir_RPM_mrg ])
         sh_file      = "%s/s15.MergeRPKM.sh"        % (self.scripts)
         sh_work_file = "%s/s15.1.MergeRPKM_work.sh" % (self.scripts)
-        
+
         l_brief = self.samInfo_pd_ChIP['brief_name']
         l_merge = set(self.samInfo_pd_ChIP['merge_name'])
-        
+
         l_sh_info = self.s15_merge_RPKM()
         l_sh_work = []
-        
+
         for window in [ "100","1kb" ]:
             for ltype in ["rep","mrg"]:
                 l_sam = l_brief
@@ -151,9 +151,9 @@ class GeneBasedInfo(m_scpt.Scripts):
                 if ltype == "mrg":
                     l_sam = l_merge
                     RPKM_dir = self.dir_RPM_bins_mrg
-                
+
                 header = "\"#chr\\tbeg\\tend\\t%s\"" % ("\\t".join(l_sam))
-                l_RPKM_file = [ 
+                l_RPKM_file = [
                     "%s/%s/%s.RPKM.uniq.%s"                                 %\
                     (RPKM_dir,sam,sam,window) for sam in l_sam
                 ]
@@ -167,14 +167,14 @@ class GeneBasedInfo(m_scpt.Scripts):
 #        my_job.running_SGE(vf="400m",maxjob=100,is_debug = self.is_debug)
 
 
-    def density_baseLevel( self ):
+    def density_baseLevel(self, core_num=4):
         sh_file      = "%s/s16.densityBaseLv.sh" % (self.scripts)
         sh_rep_work_file = "%s/s16.densityBaseLvRep_work.sh" % (self.scripts)
         sh_mrg_work_file = "%s/s16.densityBaseLvMrg_work.sh" % (self.scripts)
-        
+
         l_brief = self.samInfo_pd_ChIP['brief_name']
         l_merge = set(self.samInfo_pd_ChIP['merge_name'])
-        
+
         l_sh_info = self.s16_densityBaselv()
         l_sh_rep_work = []
         l_sh_mrg_work = []
@@ -183,66 +183,66 @@ class GeneBasedInfo(m_scpt.Scripts):
             idx   =(self.samInfo_pd_ChIP['brief_name'] == brief_name)
             if self.__is_input(idx):
                 continue
-            
-            l_sh_rep_work.append("sh %s %s %s %s" % 
+
+            l_sh_rep_work.append("sh %s %s %s %s" %
                 (sh_file, brief_name, self.ref, self.dir_Peak_rep)
             )
-        
+
         for merge_name in l_merge:
             idx   =(self.samInfo_pd_ChIP['merge_name'] == merge_name)
             if self.__is_input(idx):
                 continue
-            
-            l_sh_mrg_work.append("sh %s %s %s %s" % 
+
+            l_sh_mrg_work.append("sh %s %s %s %s" %
                 (sh_file, merge_name, self.ref, self.dir_Peak_mrg)
             )
-        
+
         my_job_rep = m_jobs.run_jobs(sh_file, sh_rep_work_file, l_sh_info, l_sh_rep_work)
-        my_job_rep.running_multi(cpu=8, is_debug = self.is_debug)
+        my_job_rep.running_multi(cpu=core_num, is_debug = self.is_debug)
 
         my_job_mrg = m_jobs.run_jobs(sh_file, sh_mrg_work_file, l_sh_info, l_sh_mrg_work)
-        my_job_mrg.running_multi(cpu=8, is_debug = self.is_debug)
+        my_job_mrg.running_multi(cpu=core_num, is_debug = self.is_debug)
 
-    def merge_density_100bp(self):
+    def merge_density_100bp(self, core_num=4):
 
         m01.make_dir([ self.dir_RPM_mrg ])
         sh_file      = "%s/s17.MergeDensity.sh"      % (self.scripts)
         sh_work_file = "%s/s17.MergeDensity_work.sh" % (self.scripts)
-        
+
         l_brief = self.samInfo_pd_ChIP['brief_name']
         l_merge = set(self.samInfo_pd_ChIP['merge_name'])
-        
+
         l_brief2 = []
         for brief_name in l_brief:
             idx   =(self.samInfo_pd_ChIP['brief_name'] == brief_name)
             if self.__is_input(idx):
                 continue
-            
+
             l_brief2.append(brief_name)
-        
+
         l_merge2 = []
         for merge_name in l_merge:
             idx   =(self.samInfo_pd_ChIP['merge_name'] == merge_name)
             if self.__is_input(idx):
                 continue
-            
+
             l_merge2.append(merge_name)
-        
+
         l_brief = l_brief2
         l_merge = l_merge2
-        
+
         l_sh_info = self.s17_merge_RPKM()
         l_sh_work = []
-        
+
         for ltype in ["rep","mrg"]:
             l_sam = l_brief
             RPKM_dir = self.dir_Peak_rep
             if ltype == "mrg":
                 l_sam = l_merge
                 RPKM_dir = self.dir_Peak_mrg
-            
+
             header = "\"#chr\\tbeg\\tend\\t%s\"" % ("\\t".join(l_sam))
-            l_RPKM_file = [ 
+            l_RPKM_file = [
                 "%s/%s/%s.1kb.norm_avg.xls"                             %\
                 (RPKM_dir, sam, sam) for sam in l_sam
             ]
@@ -250,9 +250,9 @@ class GeneBasedInfo(m_scpt.Scripts):
                 "sh %s  %s %s %s %s"                                    %\
                 (sh_file, header, "1kb", ltype, " ".join(l_RPKM_file))
             )
-        
+
         my_job = m_jobs.run_jobs(sh_file, sh_work_file, l_sh_info, l_sh_work)
-        my_job.running_multi(cpu=8, is_debug = self.is_debug)
+        my_job.running_multi(cpu=core_num, is_debug = self.is_debug)
 #        my_job.running_SGE(vf="400m",maxjob=100,is_debug = self.is_debug)
 
 
@@ -263,4 +263,3 @@ class GeneBasedInfo(m_scpt.Scripts):
             is_input = 1
 
         return is_input
-
