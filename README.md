@@ -48,7 +48,7 @@ wget https://pypi.python.org/packages/source/M/MACS2/MACS2-2.1.0.20150731.tar.gz
 tar -zxvf MACS2-2.1.0.20150731.tar.gz
 cd MACS2/
 # sed -i 's/Ofast/O3/g' /data/Analysis/huboqiang/software/MACS/setup_w_cython.py if necessary
-python install setup_w_cython.py
+python setup_w_cython.py install
 
 ### install picard-tools
 wget http://jaist.dl.sourceforge.net/project/picard/picard-tools/1.119/picard-tools-1.119.zip
