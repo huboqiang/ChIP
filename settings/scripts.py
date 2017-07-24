@@ -186,7 +186,7 @@ if [ $end == "2" ]
   then $bwa_exe aln -i 15 -q 10 -t 4 $genome                                \\
           $cln_dir/$sam_name/1.cln.fq.gz >${bam_prefix}/1.sai            && \\
       $bwa_exe aln -i 15 -q 10 -t 4 $genome                                 \\
-          $cln_dir/$sam_name/1.cln.fq.gz >${bam_prefix}/2.sai            && \\
+          $cln_dir/$sam_name/2.cln.fq.gz >${bam_prefix}/2.sai            && \\
       $bwa_exe sampe   $genome                                              \\
            ${bam_prefix}/1.sai            ${bam_prefix}/2.sai               \\
            $cln_dir/$sam_name/1.cln.fq.gz $cln_dir/$sam_name/2.cln.fq.gz    \\
